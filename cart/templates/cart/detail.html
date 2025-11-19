@@ -1,0 +1,282 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Корзина — XASAA Shop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-wrapper {
+        background: #f3f4f6;
+        border-radius: 18px;
+        padding: 24px 26px 26px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 18px 40px rgba(15,23,42,0.06);
+    }
+
+    .cart-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .cart-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 22px;
+    }
+
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    .cart-table thead {
+        background: #f9fafb;
+    }
+
+    .cart-table th,
+    .cart-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .cart-table th {
+        font-weight: 600;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .cart-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .cart-product {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cart-image {
+        width: 84px;
+        height: 84px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(135deg,#e5e7eb,#f9fafb);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    .cart-product-name {
+        font-weight: 500;
+    }
+
+    .cart-product-name span {
+        display: block;
+        color: #6b7280;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .cart-qty-form {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cart-table select {
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        border: none;
+        cursor: pointer;
+        transition: background .12s ease, color .12s ease, box-shadow .12s ease, transform .08s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: #ffffff;
+        box-shadow: 0 8px 22px rgba(37,99,235,0.35);
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(37,99,235,0.45);
+    }
+
+    .btn-outline {
+        background: #ffffff;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-outline:hover {
+        background: #f3f4f6;
+    }
+
+    .btn-danger-link {
+        color: #dc2626;
+        font-weight: 500;
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .cart-total-row {
+        background: #f9fafb;
+        font-weight: 600;
+    }
+
+    .cart-total-label {
+        text-align: right;
+        padding-right: 18px;
+    }
+
+    .cart-total-value {
+        font-size: 18px;
+    }
+
+    .cart-actions {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .cart-actions-left,
+    .cart-actions-right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .cart-empty {
+        padding: 18px;
+        font-size: 15px;
+        text-align: center;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-wrapper">
+    <h1 class="cart-title">Ваша корзина</h1>
+    <p class="cart-subtitle">
+        Проверьте товары перед оформлением заказа. Вы можете изменить количество или удалить позицию.
+    </p>
+
+    {% if cart %}
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>Изображение</th>
+                <th>Продукт</th>
+                <th>Количество</th>
+                <th>Цена за 1 шт.</th>
+                <th>Общая цена</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in cart %}
+                {% with product=item.product %}
+                    <tr>
+                        <td>
+                            <div class="cart-image">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cart-product-name">
+                                {{ product.name }}
+                                {% if product.category %}
+                                    <span>{{ product.category.name }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="cart-qty-form">
+                                {{ item.update_quantity_form.quantity }}
+                                {{ item.update_quantity_form.override }}
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline">Обновить</button>
+                            </form>
+                        </td>
+                        <td>
+                            {{ item.price }} $
+                        </td>
+                        <td>
+                            <strong>{{ item.total_price }} ₸</strong>
+                        </td>
+                        <td>
+                            <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger-link">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+            <tr class="cart-total-row">
+                <td colspan="4" class="cart-total-label">Общая стоимость:</td>
+                <td class="cart-total-value">
+                    {{ cart.get_total_price }} $
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="cart-actions">
+            <div class="cart-actions-left">
+                <a href="{% url 'shop:product_list' %}" class="btn btn-outline">
+                    Продолжить покупки
+                </a>
+            </div>
+            <div class="cart-actions-right">
+                <a href="{% url 'orders:order_create' %}" class="btn btn-primary">
+                    Оформить заказ
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="cart-empty">
+            Ваша корзина пока пуста. Начните с просмотра каталога 😊
+        </div>
+        <div class="cart-actions">
+            <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                Перейти в каталог
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

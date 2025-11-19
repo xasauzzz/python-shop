@@ -1,0 +1,169 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    color: #d44;
+    margin-bottom: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .order-info {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    background: white;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  .order-info h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #b33;
+    font-size: 1.8rem;
+    font-weight: 700;
+    border-bottom: 2px solid #d44;
+    padding-bottom: 8px;
+  }
+  .order-info ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+  }
+  .order-info ul li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .order-info ul li:last-child {
+    border-bottom: none;
+  }
+  .order-info ul li span {
+    font-weight: 600;
+    color: #d44;
+  }
+  .order-info p {
+    text-align: right;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #a00;
+    margin: 0;
+  }
+  form.order-form {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    background: white;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  form.order-form p {
+    margin-bottom: 20px;
+  }
+  form.order-form input[type="text"],
+  form.order-form input[type="email"],
+  form.order-form input[type="number"],
+  form.order-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1.8px solid #ccc;
+    border-radius: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+  }
+  form.order-form input[type="text"]:focus,
+  form.order-form input[type="email"]:focus,
+  form.order-form input[type="number"]:focus,
+  form.order-form textarea:focus {
+    border-color: #d44;
+    box-shadow: 0 0 8px rgba(212, 68, 68, 0.4);
+    outline: none;
+  }
+  form.order-form input[type="submit"] {
+    background-color: #d44;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 14px 40px;
+    border: none;
+    border-radius: 35px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    box-shadow: 0 5px 15px rgba(212, 68, 68, 0.5);
+  }
+  form.order-form input[type="submit"]:hover {
+    background-color: #a22;
+  }
+
+  .continue-shopping {
+    max-width: 600px;
+    margin: 0 auto 50px;
+    text-align: center;
+  }
+  .continue-shopping a {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: #666;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  .continue-shopping a:hover {
+    background-color: #444;
+  }
+
+  /* Мобильная адаптивность */
+  @media (max-width: 640px) {
+    .order-info, form.order-form, .continue-shopping {
+      padding: 20px;
+      margin: 0 15px 40px;
+    }
+    .order-info h3 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<h1>Оплата товаров</h1>
+
+<div class="order-info">
+  <h3>Ваши покупки</h3>
+  <ul>
+    {% for item in cart %}
+      <li>
+        {{ item.quantity }}x {{ item.product.name }}
+        <span>${{ item.total_price }}</span>
+      </li>
+    {% empty %}
+      <li>Ваша корзина пуста.</li>
+    {% endfor %}
+  </ul>
+  <p>Итого: ${{ cart.get_total_price }}</p>
+</div>
+
+<form action="." method="post" class="order-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p><input type="submit" value="Оформить"></p>
+</form>
+
+<div class="continue-shopping">
+  <a href="{% url 'shop:product_list' %}">← Продолжить покупки</a>
+</div>
+
+{% endblock %}

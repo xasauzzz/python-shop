@@ -1,0 +1,220 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Каталог — Xasaa Shop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .catalog-layout {
+        display: grid;
+        grid-template-columns: 230px 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+        .catalog-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .sidebar {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 16px 18px;
+        border: 1px solid #e5e7eb;
+        height: fit-content;
+    }
+
+    .sidebar-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .category-list li {
+        margin-bottom: 4px;
+    }
+
+    .category-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: 999px;
+    }
+
+    .category-link.active {
+        background: #e0f2fe;
+        color: #0369a1;
+        font-weight: 600;
+    }
+
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+        gap: 8px;
+    }
+
+    .products-count {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .product-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 14px 14px 16px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+        border-color: #cbd5f5;
+    }
+
+    .product-image-wrap {
+        width: 100%;
+        padding-top: 68%;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #e5e7eb, #f9fafb);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-image-wrap img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .product-name {
+        font-size: 15px;
+        font-weight: 600;
+        min-height: 2.4em;
+    }
+
+    .product-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .product-price {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .product-price small {
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: 400;
+    }
+
+    .product-link {
+        font-size: 13px;
+        color: #2563eb;
+    }
+
+    .product-link span {
+        font-size: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Каталог</h1>
+<p class="page-subtitle">
+    Выберите нужную категорию или просто посмотрите все доступные товары.
+</p>
+
+<div class="catalog-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Категории</div>
+        <ul class="category-list">
+            <li>
+                <a href="{% url 'shop:product_list' %}"
+                   class="category-link {% if not category %}active{% endif %}">
+                    <span>Все товары</span>
+                </a>
+            </li>
+            {% for c in categories %}
+                <li>
+                    <a href="{{ c.get_absolute_url }}"
+                       class="category-link {% if category and category.id == c.id %}active{% endif %}">
+                        <span>{{ c.name }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <section>
+        <div class="products-header">
+            <div>
+                <div class="page-subtitle" style="margin-bottom: 4px;">
+                    {% if category %}
+                        {{ category.name }}
+                    {% else %}
+                        Все товары магазина
+                    {% endif %}
+                </div>
+                <div class="products-count">
+                    Найдено товаров: {{ products|length }}
+                </div>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+                <article class="product-card">
+                    <a href="{{ product.get_absolute_url }}">
+                        <div class="product-image-wrap">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% endif %}
+                        </div>
+                    </a>
+
+                    <div class="product-name">
+                        {{ product.name }}
+                    </div>
+
+                    <div class="product-meta">
+                        <div class="product-price">
+                            {{ product.price }} $
+                            <small>/ шт</small>
+                        </div>
+                        <a href="{{ product.get_absolute_url }}" class="product-link">
+                            Подробнее <span>→</span>
+                        </a>
+                    </div>
+                </article>
+            {% empty %}
+                <p>Пока нет доступных товаров в этой категории.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

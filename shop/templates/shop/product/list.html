@@ -1,0 +1,206 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Our Products{% endif %}
+{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #f7f8fc, #e0e4ec);
+            color: #333;
+        }
+
+        /* ---------------- Обложка ---------------- */
+        .hero {
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            padding: 60px 40px 40px 40px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .hero p {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            opacity: 0.85;
+        }
+
+        /* Кнопка корзины */
+        .cart-button {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            background-color: #fff;
+            color: #d44;
+            padding: 10px 18px;
+            border: 2px solid #d44;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cart-button:hover {
+            background-color: #d44;
+            color: white;
+        }
+
+        /* ---------------- Категории ---------------- */
+        .category-bar {
+            background-color: #ffffffdd;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px 40px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .category-button {
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            background-color: #f1f1f1;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-button:hover {
+            background-color: #e2e2e2;
+        }
+
+        .category-active {
+            background-color: #d44;
+            color: white;
+            border-color: #d44;
+        }
+
+        /* ---------------- Сетка товаров ---------------- */
+        .product-section {
+            padding: 40px;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .item {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #222;
+        }
+
+        .product-price {
+            color: #777;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .product-button {
+            padding: 10px 20px;
+            background-color: #d44;
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-button:hover {
+            background-color: #b33;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .product-list {
+                grid-template-columns: 1fr 1fr;
+            }
+            .cart-button {
+                top: 10px;
+                right: 20px;
+                padding: 8px 14px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <!-- Шапка -->
+    <div class="hero">
+        <!-- Кнопка корзины -->
+        <a href="{% url 'cart:cart_detail' %}" class="cart-button">🛒 Корзина</a>
+
+        <h1>{% if category %}{{ category.name }}{% else %}Xasaaa shop{% endif %}</h1>
+        <p>Ассаламу Алейкум всем достойным. К вашему вниманию наш - интернет магазин</p>
+    </div>
+
+    <!-- Категории -->
+    <div class="category-bar">
+        <a href="{% url 'shop:product_list' %}" class="category-button {% if not category %}category-active{% endif %}">All</a>
+        {% for c in categories %}
+            <a href="{{ c.get_absolute_url }}" class="category-button {% if category.slug == c.slug %}category-active{% endif %}">{{ c.name }}</a>
+        {% endfor %}
+    </div>
+
+    <!-- Список товаров -->
+    <div class="product-section">
+        <div class="product-list">
+            {% for product in products %}
+                <div class="item">
+                    <a href="{{ product.get_absolute_url }}">
+                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="{{ product.name }}">
+                    </a>
+                    <div class="product-name">{{ product.name }}</div>
+                    <div class="product-price">${{ product.price }}</div>
+                    <a href="{{ product.get_absolute_url }}" class="product-button">View Product</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
